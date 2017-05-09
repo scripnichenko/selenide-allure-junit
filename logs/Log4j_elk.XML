@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--DOCTYPE log4j:configuration SYSTEM "log4j.dtd"-->
+
+<Configuration status="OFF" packages="org.graylog2.log4j2">
+<Properties>
+    <Property name ="log-path">../logs</Property>
+</Properties>
+
+<Appenders>
+   <!--<My log file>-->
+    <RollingFile name = "Performance_file"
+               filename = "${log-path}/elk_log.log"
+               filePattern = "${log-path}/elk_log.log%i"
+               bufferedIO="true"
+               immediateFlush = "true">
+    <PatternLayout pattern = "%d{yyyy-MM-dd HH:mm:ss:SSS} %p [%c] [%t] %m - %n"/>
+    <Policies>
+        <SizeBasedTriggeringPolicy size="10 MB"/>
+    </Policies>
+    <DefaultRolloverStrategy max="5"/>
+    </RollingFile>
+
+    <Async name = "ASYNC_PERF_FILE" bufferSize="1000" blocking="true">
+        <AppenderRef ref="Performance_file"/>
+    </Async>
+
+    <!--<gelf for logstash>-->
+
+    <GELF name="gelfAppender" server="graylog2.example.com" port="12201" hostName="appserver01.example.com">
+        <PatternLayout pattern="%logger{36} - %msg%n"/>
+        <Filters>
+            <Filter type="MarkerFilter" marker="FLOW" onMatch="DENY" onMismatch="NEUTRAL"/>
+            <Filter type="MarkerFilter" marker="EXCEPTION" onMatch="DENY" onMismatch="ACCEPT"/>
+        </Filters>
+
+        <!-- Additional fields -->
+        <KeyValuePair key="foo" value="bar"/>
+        <KeyValuePair key="jvm" value="${java:vm}"/>
+        <KeyValuePair key="user" value="${user}"/>
+        <!--<Another type>-->
+        <Filed name="user" value="${user}"/>
+
+    </GELF>
+
+
+</Appenders>
+
+    <!-- Loggers to filter out various class paths -->
+
+    <Loggers>
+    <logger name="statistic" additivity="false">
+        <level value="info"/>
+        <appender-ref ref="Performance_file" />
+        <appender-ref ref="gelfAppender" />
+    </logger>
+    </Loggers>
+
+    <!-- Debugging loggers -->
+
+    <!-- Uncomment to enable debug on calpoly code only -->
+    <!--
+    <logger name="edu.calpoly">
+            <level value="debug"/>
+            <appender-ref ref="ROLL" />
+    </logger>
+    -->
+
+    <root>
+        <priority value="info" />
+        <appender-ref ref="Performance_file" />
+    </root>
+
+    <Configuration>

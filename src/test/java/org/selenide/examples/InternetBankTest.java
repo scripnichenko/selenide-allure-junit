@@ -1,10 +1,13 @@
 package org.selenide.examples;
 
+import com.codeborne.selenide.Configuration;
 import com.codeborne.selenide.Screenshots;
 import com.codeborne.selenide.SelenideElement;
 import com.google.common.io.Files;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openqa.selenium.By;
 import ru.yandex.qatools.allure.annotations.Attachment;
@@ -20,6 +23,13 @@ import static com.codeborne.selenide.Selenide.open;
 import static org.junit.Assert.assertTrue;
 
 public class InternetBankTest {
+
+  @Before
+  public void  setBrowser(){
+        System.setProperty("webdriver.chrome.driver", "C:\\Users\\ASkrypnychenko\\IdeaProjects\\DataStructureCourse\\chromedriver_win32\\chromedriver.exe");
+        Configuration.browser = "chrome";
+    }
+
   @Test
   public void userCanLoginToBspbDemo() {
     open("http://idemo.bspb.ru/");
